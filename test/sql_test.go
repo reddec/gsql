@@ -1,11 +1,11 @@
-package gsql_test
+package test_test
 
 import (
 	"context"
 	"testing"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/reddec/gsql/pkg"
+	"github.com/reddec/gsql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"

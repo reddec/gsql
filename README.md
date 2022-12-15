@@ -1,12 +1,12 @@
 # Generic SQL
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/reddec/gsql/pkg.svg)](https://pkg.go.dev/github.com/reddec/gsql/pkg)
+[![Go Reference](https://pkg.go.dev/badge/github.com/reddec/gsql.svg)](https://pkg.go.dev/github.com/reddec/gsql)
 
 Tiny wrapper built around standard Go SQL library and SQLx with generic support.
 
 ## Installation
 
-    go get -v github.com/reddec/gsql/pkg
+    go get -v github.com/reddec/gsql
 
 ## Examples
 
