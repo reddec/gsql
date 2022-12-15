@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/reddec/gsql"
+	"github.com/reddec/gsql/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"

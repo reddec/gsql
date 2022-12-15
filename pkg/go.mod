@@ -1,4 +1,4 @@
-module github.com/reddec/gsql
+module github.com/reddec/gsql/pkg
 
 go 1.18
 
