@@ -158,8 +158,10 @@ func (it *Iterator[T]) Get() (T, error) {
 	return result, err
 }
 
-// Collect all results as slice.
+// Collect all results as slice. It will automatically [Close] iterator.
 func (it *Iterator[T]) Collect() ([]T, error) {
+	defer it.Close()
+
 	var result []T
 	for it.Next() {
 		r, err := it.Get()
