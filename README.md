@@ -63,6 +63,7 @@ Iterate each book one by one
 
 ```go
 iter := gsql.Iterate[Book](ctx, conn, "SELECT * FROM book LIMIT ?", 100)
+defer iter.Close()
 for iter.Next() {
     book, err := iter.Get()
     // ...
