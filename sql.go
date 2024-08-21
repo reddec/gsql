@@ -3,6 +3,9 @@ package gsql
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
 	"sync"
 
 	"github.com/jmoiron/sqlx"
@@ -171,4 +174,30 @@ func (it *Iterator[T]) Collect() ([]T, error) {
 		result = append(result, r)
 	}
 	return result, it.Err()
+}
+
+// AsJSON is a handy wrapper to use Go type automatic detection.
+// Returns intialized instance of [JSON]
+func AsJSON[T any](value T) JSON[T] {
+	return JSON[T]{Data: value}
+}
+
+// JSON wrapper which converts/parses data from/to JSON (as bytes).
+type JSON[T any] struct {
+	Data T // parsed field value
+}
+
+func (field JSON[T]) Value() (driver.Value, error) {
+	return json.Marshal(field.Data)
+}
+
+func (field *JSON[T]) Scan(value any) error {
+	switch v := value.(type) {
+	case string:
+		return json.Unmarshal([]byte(v), &field.Data)
+	case []byte:
+		return json.Unmarshal(v, &field.Data)
+	default:
+		return fmt.Errorf("unsupported field type")
+	}
 }

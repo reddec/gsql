@@ -120,3 +120,40 @@ books2, err := cache.Get(ctx) // second time it will return cached information
 //...
 cache.Invalidate() // reset cache, the following Get will again execute the query
 ```
+
+## JSON
+
+Simple generic wrapper around any JSON-serializable value: `JSON[T]`.
+
+Support both reading (scanner) and writing (Value).
+
+### Example
+
+Assuming schema
+
+```sql
+CREATE TABLE book
+(
+    id     INTEGER NOT NULL PRIMARY KEY,
+    title  TEXT    NOT NULL,
+    author TEXT,
+    year   INTEGER NOT NULL,
+    meta   JSONB NOT NULL
+)
+```
+
+Go code
+
+```go
+type Metadata struct {
+    Zip int
+}
+
+type Book struct {
+    ID     int64
+    Title  string
+    Author string
+    Year   int
+    Meta   JSON[Metadata]
+}
+```
