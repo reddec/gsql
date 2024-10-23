@@ -121,6 +121,57 @@ books2, err := cache.Get(ctx) // second time it will return cached information
 cache.Invalidate() // reset cache, the following Get will again execute the query
 ```
 
+
+## Static statements
+
+Static statements are just plain SQL query wrapped in a type-safe alias.
+
+### Statement
+
+Only return type is strictly typed. Arguments are positional and can be any type.
+
+```go
+const (
+	ListBooks gsql.Statement[Book] = `SELECT * FROM book`
+	GetBook   gsql.Statement[Book] = `SELECT * FROM book WHERE id = ?`
+)
+```
+
+All query methods supported: `Get`, `List`, `Iterate`
+
+```go
+
+list, err := ListBooks.List(ctx, conn)
+// ...
+book, err := GetBook.Get(ctx, conn, 123)
+// ...
+```
+
+### Named statement
+
+Both return type and arguments are strictly typed. Argument can by struct or a map. 
+Uses [Named Queries](https://jmoiron.github.io/sqlx/#namedParams).
+
+```go
+type Query struct {
+    Author string `db:"author"`
+}
+
+const (
+	FindBookByAuthor gsql.NamedStatement[Book, Query] = `SELECT * FROM book WHERE author = :author`
+)
+```
+
+Types enforced
+
+
+```go
+book, err := FindBookByAuthor.Get(ctx, conn, Query{
+    Author: "Reddec",
+})
+// ...
+```
+
 ## JSON
 
 Simple generic wrapper around any JSON-serializable value: `JSON[T]`.

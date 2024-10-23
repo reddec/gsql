@@ -201,3 +201,55 @@ func (field *JSON[T]) Scan(value any) error {
 		return fmt.Errorf("unsupported field type")
 	}
 }
+
+// Statement is static SQL which can be executed later against different databases and with arguments.
+// Can be used to return single element, list or iterator.
+type Statement[T any] string
+
+// List is a wrapper around [List] function with static SQL query.
+func (st Statement[T]) List(ctx context.Context, db sqlx.QueryerContext, args ...any) ([]T, error) {
+	return List[T](ctx, db, string(st), args...)
+}
+
+// Iterate is a wrapper around [Iterate] function with static SQL query.
+func (st Statement[T]) Iterate(ctx context.Context, db sqlx.QueryerContext, args ...any) *Iterator[T] {
+	return Iterate[T](ctx, db, string(st), args...)
+}
+
+// Get is a wrapper around [Get] function with static SQL query.
+func (st Statement[T]) Get(ctx context.Context, db sqlx.QueryerContext, args ...any) (T, error) {
+	return Get[T](ctx, db, string(st), args...)
+}
+
+// NamedStatement is static SQL which can be executed later against different databases and with named arguments.
+// Named arguments could be a map or structure (see documentation in sqlx).
+// Can be used to return single element, list or iterator.
+type NamedStatement[T any, Params any] string
+
+// List is a wrapper around [List] function with static SQL query.
+func (st NamedStatement[T, Params]) List(ctx context.Context, db sqlx.QueryerContext, arg Params) ([]T, error) {
+	query, args, err := sqlx.Named(string(st), arg)
+	if err != nil {
+		return nil, fmt.Errorf("prepare SQL: %w", err)
+	}
+	return List[T](ctx, db, query, args...)
+}
+
+// Iterate is a wrapper around [Iterate] function with static SQL query.
+func (st NamedStatement[T, Params]) Iterate(ctx context.Context, db sqlx.QueryerContext, arg Params) *Iterator[T] {
+	query, args, err := sqlx.Named(string(st), arg)
+	if err != nil {
+		return &Iterator[T]{err: fmt.Errorf("prepare SQL: %w", err)}
+	}
+	return Iterate[T](ctx, db, query, args...)
+}
+
+// Get is a wrapper around [Get] function with static SQL query.
+func (st NamedStatement[T, Params]) Get(ctx context.Context, db sqlx.QueryerContext, arg Params) (T, error) {
+	query, args, err := sqlx.Named(string(st), arg)
+	if err != nil {
+		var def T
+		return def, fmt.Errorf("prepare SQL: %w", err)
+	}
+	return Get[T](ctx, db, query, args...)
+}

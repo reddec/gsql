@@ -26,6 +26,20 @@ INSERT INTO book (title, author, year,  metadata) VALUES
                                            ('C','K&R', 1970, '{"zip": 91011}');
 `
 
+const (
+	ListBooks gsql.Statement[Book] = `SELECT * FROM book`
+	GetBook   gsql.Statement[Book] = `SELECT * FROM book WHERE id = ?`
+)
+
+// Named
+const (
+	FindBookByAuthor gsql.NamedStatement[Book, Query] = `SELECT * FROM book WHERE author = :author`
+)
+
+type Query struct {
+	Author string `db:"author"`
+}
+
 type Metadata struct {
 	Zip int
 }
@@ -154,4 +168,43 @@ func TestInsertJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, book, saved)
+}
+
+func TestStatements(t *testing.T) {
+	ctx := context.Background()
+
+	conn, err := sqlx.Open("sqlite", ":memory:")
+	require.NoError(t, err)
+	defer conn.Close()
+
+	_, err = conn.Exec(initSQL)
+	require.NoError(t, err)
+
+	list, err := ListBooks.List(ctx, conn)
+	require.NoError(t, err)
+
+	assert.Equal(t, records, list)
+
+	book, err := GetBook.Get(ctx, conn, recordReddec.ID)
+	require.NoError(t, err)
+
+	assert.Equal(t, book, recordReddec)
+}
+
+func TestNamedStatements(t *testing.T) {
+	ctx := context.Background()
+
+	conn, err := sqlx.Open("sqlite", ":memory:")
+	require.NoError(t, err)
+	defer conn.Close()
+
+	_, err = conn.Exec(initSQL)
+	require.NoError(t, err)
+
+	book, err := FindBookByAuthor.Get(ctx, conn, Query{
+		Author: recordReddec.Author,
+	})
+	require.NoError(t, err)
+
+	assert.Equal(t, book, recordReddec)
 }
